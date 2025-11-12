@@ -1,0 +1,215 @@
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Separator | Rapz</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+    body {
+        background: linear-gradient(135deg, #141E30, #243B55);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 30px;
+    }
+    h1 {
+        font-size: 2.2rem;
+        background: linear-gradient(to right, #00d4ff, #8a2be2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    h2 {
+        font-weight: 400;
+        font-size: 1rem;
+        color: #bbb;
+        margin-bottom: 25px;
+    }
+    textarea {
+        width: 90%;
+        max-width: 800px;
+        height: 200px;
+        padding: 15px;
+        border-radius: 12px;
+        border: none;
+        resize: none;
+        font-size: 1rem;
+        background: #1e293b;
+        color: #fff;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    }
+    textarea:focus {
+        box-shadow: 0 0 15px rgba(0,212,255,0.5);
+    }
+    button {
+        margin-top: 20px;
+        background: linear-gradient(to right, #00d4ff, #8a2be2);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        color: #fff;
+        transition: 0.3s;
+    }
+    button:hover {
+        opacity: 0.85;
+        transform: translateY(-2px);
+    }
+    .output {
+        margin-top: 40px;
+        width: 90%;
+        max-width: 900px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .code-card {
+        background: #1e1e2f;
+        border-left: 5px solid #00d4ff;
+        border-radius: 12px;
+        padding: 15px;
+        position: relative;
+    }
+    .code-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        color: #00d4ff;
+    }
+    pre {
+        background: #0f172a;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .copy-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #00d4ff;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .copy-btn:hover {
+        background: #8a2be2;
+        color: #fff;
+    }
+    footer {
+        margin-top: 50px;
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+</style>
+</head>
+<body>
+    <h1>Web Separator</h1>
+    <h2>Pisahkan kode HTML, CSS, JS, Python, dan lainnya secara otomatis 🔥</h2>
+    
+    <textarea id="inputCode" placeholder="Tempelkan seluruh kode di sini..."></textarea>
+    <button onclick="separateCode()">Pisahkan Kode</button>
+    
+    <div class="output" id="outputContainer"></div>
+    
+    <footer>© 2025 Rapz - All Rights Reserved</footer>
+    
+<script>
+function separateCode() {
+    const input = document.getElementById("inputCode").value;
+    const outputContainer = document.getElementById("outputContainer");
+    outputContainer.innerHTML = "";
+
+    if (!input.trim()) {
+        outputContainer.innerHTML = "<p style='color:#ff6b6b'>⚠️ Harap tempelkan kode terlebih dahulu.</p>";
+        return;
+    }
+
+    const codeBlocks = [];
+
+    // HTML
+    const htmlMatch = input.match(/<html[\s\S]*?<\/html>/i);
+    if (htmlMatch) {
+        codeBlocks.push({ type: "HTML", code: htmlMatch[0] });
+    }
+
+    // CSS
+    const cssMatches = input.match(/<style[\s\S]*?<\/style>/gi);
+    if (cssMatches) {
+        cssMatches.forEach(css => {
+            codeBlocks.push({ type: "CSS", code: css.replace(/<\/?style>/gi, "").trim() });
+        });
+    }
+
+    // JavaScript
+    const jsMatches = input.match(/<script[\s\S]*?<\/script>/gi);
+    if (jsMatches) {
+        jsMatches.forEach(js => {
+            codeBlocks.push({ type: "JavaScript", code: js.replace(/<\/?script.*?>/gi, "").trim() });
+        });
+    }
+
+    // Python
+    const pyMatches = input.match(/```python([\s\S]*?)```/gi);
+    if (pyMatches) {
+        pyMatches.forEach(py => {
+            const cleaned = py.replace(/```python|```/gi, "").trim();
+            codeBlocks.push({ type: "Python", code: cleaned });
+        });
+    }
+
+    // Plain Text / Unknown
+    if (codeBlocks.length === 0) {
+        codeBlocks.push({ type: "Unknown / Plain Text", code: input.trim() });
+    }
+
+    codeBlocks.forEach(block => {
+        const div = document.createElement("div");
+        div.classList.add("code-card");
+        div.innerHTML = `
+            <div class="code-title">${block.type}</div>
+            <pre>${escapeHtml(block.code)}</pre>
+            <button class="copy-btn" onclick="copyCode(this)">Salin</button>
+        `;
+        outputContainer.appendChild(div);
+    });
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function copyCode(btn) {
+    const pre = btn.previousElementSibling;
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerText = "✅ Disalin!";
+        setTimeout(() => btn.innerText = "Salin", 1500);
+    });
+}
+</script>
+</body>
+</html>
